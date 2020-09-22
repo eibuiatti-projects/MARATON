@@ -31,3 +31,12 @@ body {
   font-size: large;
   color: black;
 }
+
+/* Ej 10*/
+.invalid{
+  background: rgb(247, 133, 133);
+}
+
+.valid{
+  background: rgb(163, 250, 163);
+}

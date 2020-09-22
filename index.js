@@ -10,7 +10,7 @@ Exitos! Happy coding! - Guayerd
 /*
 Ej - 1: Mostrar con alert el siguiente texto... "Bievenidas/os al Maratón Guayerd"
 */
-//alert("Bievenidas/os al Maratón Guayerd");
+alert("Bievenidas/os al Maratón Guayerd");
 /*
 Ej - 2: Completar/arreglar el código para que la función focusHandler() se ejecute cuando el foco este puesto en el input.ej2-nombre. 
 Y cuando el foco se pierda (evento blur), borrar el contenido del div.
@@ -80,7 +80,7 @@ resultado5.appendChild(newDiv);
 btnSumar.addEventListener ("click", btnSumarHandler);
 
 function btnSumarHandler(){
- 
+// puede ser parseInt o parseFloat 
   numA = parseInt(inputA.value);
   numB = parseInt(inputB.value);
   if (isNaN(numA) || isNaN(numB) ){
@@ -253,21 +253,25 @@ nombre10.placeholder = "Ingrese Nombre";
 nombre10.type = "text";
 
 
+
 let email10 = document.createElement("input");
 email10.placeholder = "Ingrese Email";
-email10.pattern = "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$";
+
 
 let telefono10 = document.createElement("input");
 telefono10.placeholder = "Ingrese Telefono";
-telefono10.type = "number";
+telefono10.type = "number"; 
 
 let horarioDeContacto = document.createElement("select");
 let optionH1 = document.createElement("option");
 let optionH2 = document.createElement("option");
 let optionH3 = document.createElement("option");
 optionH1.innerText = "Mañana";
+optionH1.setAttribute("value","M");
 optionH2.innerText = "Tarde";
+optionH2.setAttribute("value","T");
 optionH3.innerText = "Noche";
+optionH3.setAttribute("value","N");
 
 let producto = document.createElement("select");
 let optionP1 = document.createElement("option");
@@ -275,9 +279,13 @@ let optionP2 = document.createElement("option");
 let optionP3 = document.createElement("option");
 let optionP4 = document.createElement("option");
 optionP1.innerText = "Crédito";
+optionP1.setAttribute("value","CR");
 optionP2.innerText = "Celular";
+optionP2.setAttribute("value","CEL");
 optionP3.innerText = "Viajes";
+optionP3.setAttribute("value","V");
 optionP4.innerText = "Seguros";
+optionP4.setAttribute("value","S");
 
 let btnGuardar10 = document.createElement("button");
 btnGuardar10.innerText = "Guardar";
@@ -316,41 +324,51 @@ btnGuardar10.addEventListener("click", btnGuardarHandler);
 btnFinalizar10.addEventListener("click", btnFinalizarHandler);
 formulario10.addEventListener("submit",formulario10Submit);
 
+//valido cada entrada 
+nombre10.addEventListener("input", nombre10Handler); // solo se validara que no este vacío 
+email10.addEventListener("input", email10Handler); // se validara según patrón regex
+telefono10.addEventListener("input", telefono10Handler); // solo se validara que no este vacío 
+
+let regex = /^[-\w.%+]{1,64}@(?:[A-Z0-9-]{1,63}\.){1,125}[A-Z]{2,63}$/i; //patrón para el email
+
 //funciones
 function btnGuardarHandler(){
-  //event.preventDefault();
-  let nuevoContacto = { Nombre:nombre10.value, Email: email10.value, Telefono: telefono10.value, Horario: horarioDeContacto.value, Producto: producto.value }
-  let flag = false;
-  contactos.forEach(function(contacto){
-    if(contacto.Email===nuevoContacto.Email){
-      flag = true;
-    }
-  });    
-  if(!flag){
-    contactos.push(nuevoContacto);
-    localStorage.setItem("contactos", JSON.stringify(contactos))
-    nombre10.value = "";
-    email10.value = "";
-    telefono10.value = "";  
-  }    
+  //aqui seteo los mensajes acorde a cada validacion
+  console.log("se hizo click en guardar");
+  if (nombre10.value === null || nombre10.value === "") {
+    nombre10.setCustomValidity("No se aceptan campos vacíos!!!");
+  } else {
+    nombre10.setCustomValidity("");
+  }
+  if (regex.test(email10.value)) {
+    email10.setCustomValidity("");
+  } else {
+    email10.setCustomValidity("El campo debe ser del tipo 'ejemplo@ejemplo.ej' !!!");
+  }
+  if (telefono10.value === null || telefono10.value === "") {
+    telefono10.setCustomValidity("No se aceptan campos vacíos!!!");
+  } else {
+    telefono10.setCustomValidity("");
+  }
+  
 }
 
-function btnFinalizarHandler(){
-  event.preventDefault();
+function btnFinalizarHandler(e){
+  e.preventDefault();
   
   contactos.forEach(function(contacto,index){
     let ul = document.createElement("ul");
     ul.innerText = `Cliente: ${index+1}`;
     let liNombre = document.createElement("li")
-    liNombre.innerText = `Nombre: ${contacto.Nombre}`;
+    liNombre.innerText = `Nombre: ${contacto.nombre}`;
     let liEmail = document.createElement("li")
-    liEmail.innerText = `Email: ${contacto.Email}`; 
+    liEmail.innerText = `Email: ${contacto.email}`; 
     let liTelefono = document.createElement("li")
-    liTelefono.innerText = `Telefono: ${contacto.Telefono}`; 
+    liTelefono.innerText = `Telefono: ${contacto.telefono}`; 
     let liHorario = document.createElement("li")
-    liHorario.innerText = `Horario de Contacto: ${contacto.Horario}`;
+    liHorario.innerText = `Horario de Contacto: ${contacto.horario}`;
     let liProducto = document.createElement("li")
-    liProducto.innerText = `Producto: ${contacto.Producto}`; 
+    liProducto.innerText = `Producto: ${contacto.productoSeleccionado}`; 
     ul.appendChild(liNombre);
     ul.appendChild(liEmail);
     ul.appendChild(liTelefono);
@@ -362,10 +380,58 @@ function btnFinalizarHandler(){
 }
 
 
-function formulario10Submit(){
-    event.preventDefault();
-    console.log("SE está submiteando el formulario!!!!!");
-    if(email10.pattern != "[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"){
-        email10.setCustomValidity("Pusiste mal la operacion.");
+function formulario10Submit(e){
+    e.preventDefault();
+    console.log("Se previno el submit por defecto!!!");
+    let nuevoContacto = { nombre:nombre10.value, email: email10.value, telefono: telefono10.value, horario: horarioDeContacto.value, productoSeleccionado: producto.value }
+  let flag = false;
+  contactos.forEach(function(contacto){
+    if(contacto.email===nuevoContacto.email){
+      flag = true;
     }
+  });    
+  if(!flag){
+    contactos.push(nuevoContacto);
+    localStorage.setItem("contactos", JSON.stringify(contactos))
+    
+  } 
+  //borro campos y colores de fondo
+  nombre10.value = "";
+  nombre10.classList.remove("valid");
+  email10.value = "";
+  email10.classList.remove("valid");
+  telefono10.value = ""; 
+  telefono10.classList.remove("valid");   
+}
+
+// en las siguientes funciones se setean los colores de fondo acorde a la validacion en tiempo real
+
+function nombre10Handler(){ 
+  if (nombre10.value === null || nombre10.value === "") {
+    nombre10.classList.remove("valid");
+    nombre10.classList.add("invalid");
+  } else {
+    nombre10.classList.remove("invalid");
+    nombre10.classList.add("valid");
+  }
+}
+
+function email10Handler(){
+  if (regex.test(email10.value)) {
+    email10.classList.remove("invalid");
+    email10.classList.add("valid");
+  } else {
+    email10.classList.remove("valid");
+    email10.classList.add("invalid");
+  }
+}
+
+function telefono10Handler(){ 
+  if (telefono10.value === null || telefono10.value === "") {
+    telefono10.classList.remove("valid");
+    telefono10.classList.add("invalid");
+  } else {
+    telefono10.classList.remove("invalid");
+    telefono10.classList.add("valid");
+  }
 }
